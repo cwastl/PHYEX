@@ -118,7 +118,7 @@ REAL, DIMENSION(D%NIJT,NTURB_S), INTENT(IN) ::  PTURB_SPP      ! SPP for turbule
 !
 !
 REAL, DIMENSION(D%NIJT,D%NKT)  :: ZA, ZFLXZ, ZWKLES
-REAL, DIMENSION(D%NIJT)  :: ZCSV
+REAL, DIMENSION(D%NIJT)  :: ZCSV !constant (possibly perturbed) for the scalar flux
 !
 !
 INTEGER             :: JSV          ! loop counters
@@ -145,14 +145,17 @@ IKT=D%NKT
 !
 CALL SECOND_MNH(ZTIME1)
 !
-DO JIJ=IIJB, IIJE
-   IF(OBLOWSNOW) THEN
-      ! See Vionnet (PhD, 2012) for a complete discussion around the value of the Schmidt number for |
-      ZCSV(JIJ)= PTURB_SPP(JIJ,NCHF)/PRSNOW
-   ELSE
-      ZCSV(JIJ)= PTURB_SPP(JIJ,NCHF)
-   ENDIF
-ENDDO
+IF(OBLOWSNOW) THEN
+! See Vionnet (PhD, 2012) for a complete discussion around the value of the Schmidt number for blowing snow variables
+  DO JIJ=IIJB, IIJE
+     ZCSV(JIJ)= PTURB_SPP(JIJ,NCHF)/PRSNOW
+  ENDDO
+ELSE
+  DO JIJ=IIJB, IIJE
+     ZCSV(JIJ)= PTURB_SPP(JIJ,NCHF)
+  ENDDO
+ENDIF
+!
 DO JSV=1,KSV
   !
   IF (ONOMIXLG .AND. JSV >= KSV_LGBEG .AND. JSV<= KSV_LGEND) CYCLE

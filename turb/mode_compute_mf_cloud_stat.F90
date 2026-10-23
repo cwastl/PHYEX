@@ -155,7 +155,7 @@ IF (KRRL > 0)  THEN
     ELSE
       DO JK=1, IKT
         DO JIJ=IIJB, IIJE
-          ZFLXZ(JIJ, JK) = -2  *PARAMMF%XTAUSIGMF * PEMF(JIJ, JK)* &
+          ZFLXZ(JIJ, JK) = -2 * PARAMMF%XTAUSIGMF * PEMF(JIJ, JK)* &
                                & (PTHL_UP(JIJ, JK)-ZFLXZ(JIJ, JK)) * ZWK(JIJ, JK)
         END DO
       END DO

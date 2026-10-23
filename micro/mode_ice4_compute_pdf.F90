@@ -78,7 +78,7 @@ REAL, DIMENSION(KSIZE) :: ZRCRAUTC,      & !RC value to begin rain formation =XC
                                                     !                     = PHLC_HRC/HCF+ PHLC_LRC/LCF
                           ZSUMRC, ZSUMRI
 REAL, DIMENSION(KSIZE) :: ZXACRIAUTI, ZXBCRIAUTI
-REAL :: ZCOEFFRCM,ZTCRI0,ZCRI0
+REAL :: ZCOEFFRCM
 REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 INTEGER :: JL
 !-------------------------------------------------------------------------------

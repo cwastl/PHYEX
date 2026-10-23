@@ -358,7 +358,6 @@ REAL, DIMENSION(D%NIJT,MIN(D%NKA+JPVEXT_TURB*D%NKL,D%NKA+JPVEXT_TURB*D%NKL+2*D%N
                                     ! computation near the ground, defined in
                                     ! mass points of the domain in the 3 direct.
 !
-REAL, DIMENSION(D%NIJT) :: ZCHT1, ZCHT2
 REAL :: ZTIME1, ZTIME2
 !
 LOGICAL :: GUSERV   ! flag to use water
@@ -386,10 +385,6 @@ REAL, DIMENSION(D%NIJT,D%NKT) ::ZMZF2D_WORK3
 REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 IF (LHOOK) CALL DR_HOOK('TURB_VER_THERMO_CORR',0,ZHOOK_HANDLE)
 !
-DO JIJ=IIJB, IIJE
-   ZCHT1(JIJ)=PTURB_SPP(JIJ,NCHT1)
-   ZCHT2(JIJ)=PTURB_SPP(JIJ,NCHT2)
-END DO
 
 IKB=D%NKB
 IKE=D%NKE
@@ -1147,7 +1142,7 @@ ENDIF
     IF (NEBN%LSTATNW) THEN
 
       DO JIJ=IIJB, IIJE
-        ZFLXZ(JIJ, IKB) = (ZCHT1(JIJ) + ZCHT2(JIJ)) * ZFLXZ(JIJ, IKB)
+        ZFLXZ(JIJ, IKB) = (PTURB_SPP(JIJ,NCHT1) + PTURB_SPP(JIJ,NCHT2)) * ZFLXZ(JIJ, IKB)
       END DO
 
     END IF
@@ -1155,7 +1150,7 @@ ENDIF
 
       DO JIJ=IIJB, IIJE
         ZFLXZ(JIJ, IKB) =                                                            & 
-        (ZCHT1(JIJ) * PPHI3(JIJ, IKB+IKL) + ZCHT2(JIJ) * PPSI3(JIJ, IKB+IKL))   &
+        (PTURB_SPP(JIJ,NCHT1) * PPHI3(JIJ, IKB+IKL) + PTURB_SPP(JIJ,NCHT2) * PPSI3(JIJ, IKB+IKL))   &
         *( PEXPL *                                                                              &
            ( ZCOEFF(JIJ, IKB+2*IKL)*PTHLM(JIJ, IKB+2*IKL)             &
             +ZCOEFF(JIJ, IKB+IKL)*PTHLM(JIJ, IKB+IKL)             & 

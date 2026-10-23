@@ -218,7 +218,7 @@ REAL, DIMENSION(D%NIJT,D%NKT) &
                             ZLV,  &  ! guess of the Lv at t+1
                             ZLS      ! guess of the Ls at t+1
 REAL :: ZCRIAUT, & ! Autoconversion thresholds
-        ZHCF, ZHR, ZEPS, ZTCRI0,ZCRI0
+        ZHCF, ZHR, ZEPS
 !
 INTEGER             :: JITER,ITERMAX ! iterative loop for first order adjustment
 INTEGER             :: JIJ, JK
@@ -571,7 +571,7 @@ IF ( NEBN%LSUBG_COND ) THEN
        PPABST, PZZ, PRHODREF, ZT, PRV_IN, PRV_OUT, PRC_IN, PRC_OUT, PRI_IN, PRI_OUT, &
        PRR, PRS, PRG, PSIGS, LMFCONV, PMFCONV, PCLDFR, &
        ZSRCS, .TRUE., NEBN%LSIGMAS, PARAMI%LOCND2,                       &
-       PICLDFR, PWCLDFR, PSSIO, PSSIU, PIFR, PSIGQSAT, &
+       PICLDFR, PWCLDFR, PSSIO, PSSIU, PIFR, PSIGQSAT,                   &
        PRCRIAUTI, PRCRIAUTC, ZXACRIAUTI, ZXBCRIAUTI, &
        PLV=ZLV, PLS=ZLS, PCPH=ZCPH,                                      &
        PHLC_HRC=PHLC_HRC, PHLC_HCF=PHLC_HCF, PHLI_HRI=PHLI_HRI, PHLI_HCF=PHLI_HCF,&
@@ -592,7 +592,7 @@ ELSE
        PPABST, PZZ, PRHODREF, ZT, PRV_IN, PRV_OUT, PRC_IN, PRC_OUT, PRI_IN, PRI_OUT, &
        PRR, PRS, PRG, ZSIGS, LMFCONV, PMFCONV, PCLDFR, &
        ZSRCS, .TRUE., .TRUE., PARAMI%LOCND2,                             &
-       PICLDFR, PWCLDFR, PSSIO, PSSIU, PIFR, ZSIGQSAT, &
+       PICLDFR, PWCLDFR, PSSIO, PSSIU, PIFR, ZSIGQSAT,                   &
        PRCRIAUTI, PRCRIAUTC, ZXACRIAUTI, ZXBCRIAUTI, &
        PLV=ZLV, PLS=ZLS, PCPH=ZCPH,                                      &
        PHLC_HRC=PHLC_HRC, PHLC_HCF=PHLC_HCF, PHLI_HRI=PHLI_HRI, PHLI_HCF=PHLI_HCF,&

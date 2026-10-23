@@ -80,9 +80,9 @@ REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PRDEPGRED! SPP for microphysics
 !
 !*       0.2  declaration of local variables
 !
-REAL, DIMENSION(KPROMA) :: ZCRIAUTI, ZXACRIAUTI, ZXBCRIAUTI 
+REAL, DIMENSION(KPROMA) :: ZCRIAUTI, ZXACRIAUTI, ZXBCRIAUTI
 INTEGER                 :: JL
-REAL            :: ZTCRI0,ZCRI0
+REAL            :: ZREDGR,ZREDSN
 REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 !-------------------------------------------------------------------------------
 !
@@ -91,6 +91,16 @@ IF (LHOOK) CALL DR_HOOK('ICE4_SLOW', 0, ZHOOK_HANDLE)
 !-------------------------------------------------------------------------------
 !
 !*       3.1  Tuning possibilties (only for OCND2)
+
+ZREDGR  = 1.      ! Tuning of the deposition of graupel, 1. is ref. value
+ZREDSN  = 1.      ! Tuning of the deposition of snow, 1. is ref. value
+
+IF(PARAMI%LOCND2) THEN
+  IF(.NOT. PARAMI%LMODICEDEP) THEN
+    ZREDGR  = ICEP%XFRMIN(39)  ! Tuning factor, may be /= 1.
+    ZREDSN  = ICEP%XFRMIN(40)  ! Tuning factor, may be /= 1.
+  ENDIF
+ENDIF
 
 !Cloud water split between high and low content part is done according to autoconversion option
 IF(PARAMI%LCRIAUTI) THEN
@@ -145,7 +155,7 @@ DO JL=1, KSIZE
       IF(.NOT. ICEP%LNEWCOEFF) THEN
         PRVDEPS(JL) = ( PSSI(JL)/(PRHODREF(JL)*PAI(JL)) ) *                               &
                    ( ICEP%X0DEPS*PLBDAS(JL)**ICEP%XEX0DEPS + ICEP%X1DEPS*PCJ(JL)*PLBDAS(JL)**ICEP%XEX1DEPS )
-        PRVDEPS(JL) = PRVDEPS(JL)*PRDEPSRED(JL)
+        PRVDEPS(JL) = PRVDEPS(JL)*ZREDSN
       ELSE
         PRVDEPS(JL) = ( PRST(JL)*(PSSI(JL)/PAI(JL)) ) *                               &
                       ( ICEP%X0DEPS*PLBDAS(JL)**(ICED%XBS+ICEP%XEX0DEPS) + ICEP%X1DEPS*PCJ(JL) * &
@@ -218,12 +228,11 @@ DO JL=1, KSIZE
     IF(.NOT. LDSOFT) THEN
       PRVDEPG(JL) = ( PSSI(JL)/(PRHODREF(JL)*PAI(JL)) ) *                               &
                  ( ICEP%X0DEPG*PLBDAG(JL)**ICEP%XEX0DEPG + ICEP%X1DEPG*PCJ(JL)*PLBDAG(JL)**ICEP%XEX1DEPG )
-      PRVDEPG(JL) = PRVDEPG(JL)*PRDEPGRED(JL)
+      PRVDEPG(JL) = PRVDEPG(JL)*ZREDGR
     ENDIF
   ELSE
     PRVDEPG(JL) = 0.
   ENDIF
-  PRVDEPG(JL) = PRVDEPG(JL)*PRDEPGRED(JL)
 ENDDO
 !$mnh_end_do()
 

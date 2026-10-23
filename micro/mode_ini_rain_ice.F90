@@ -178,7 +178,6 @@ INTEGER :: IND                ! Number of interval to integrate the kernels
 REAL :: ZESR                  ! Mean efficiency of rain-aggregate collection
 REAL :: ZFDINFTY              ! Factor used to define the "infinite" diameter
 !
-REAL :: ZCRI0, ZTCRI0         ! Second point to determine 10**(aT+b) law of ri->rs autoconversion
 !
 !
 !
@@ -205,6 +204,7 @@ REAL     :: PDRYLBDAG_MAX,PDRYLBDAS_MAX,PDRYLBDAG_MIN,PDRYLBDAS_MIN
 REAL     :: PDRYLBDAR_MAX,PDRYLBDAR_MIN
 REAL     :: PWETLBDAS_MAX,PWETLBDAG_MAX,PWETLBDAS_MIN,PWETLBDAG_MIN
 REAL     :: PWETLBDAR_MAX,PWETLBDAH_MAX,PWETLBDAR_MIN,PWETLBDAH_MIN
+REAL     :: XBCRIAUTI_CHECK, XACRIAUTI_CHECK
 !
 LOGICAL  :: LUPDATE_SNOW
 REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
@@ -678,9 +678,6 @@ XTEXAUTI = 0.015  !  Temperature factor of the I+I collection efficiency
 XCRIAUTI = XCRIAUTI_NAM
 IF(LCRIAUTI) THEN
   XT0CRIAUTI = XT0CRIAUTI_NAM
-  !second point to determine 10**(aT+b) law
-  ZTCRI0=-40.0
-  ZCRI0=1.25E-6
   CALL CRIAUTI(XCRIAUTI, XT0CRIAUTI, XACRIAUTI, XBCRIAUTI)
 ELSE
   XACRIAUTI=XACRIAUTI_NAM
