@@ -108,7 +108,7 @@ REAL, DIMENSION(D%NIJT,D%NKT), INTENT(IN)   ::  PTKEM        ! TKE at time t
 REAL, DIMENSION(D%NIJT,D%NKT), INTENT(IN)   ::  PLM          ! Turb. mixing length   
 REAL, DIMENSION(D%NIJT,D%NKT), INTENT(IN)   ::  PLEPS        ! dissipative length   
 REAL, DIMENSION(D%NIJT,D%NKT,KSV), INTENT(IN) ::  PPSI_SV      ! Inv.Turb.Sch.for scalars
-REAL, DIMENSION(D%NIJT,NTURB_S), INTENT(IN) ::  PTURB_SPP      ! SPP for turbulence
+REAL, DIMENSION(D%NIJT,D%NKT,NTURB_S), INTENT(IN) ::  PTURB_SPP      ! SPP for turbulence
 ! cumulated sources for the prognostic variables
 !
 !
@@ -118,7 +118,7 @@ REAL, DIMENSION(D%NIJT,NTURB_S), INTENT(IN) ::  PTURB_SPP      ! SPP for turbule
 !
 !
 REAL, DIMENSION(D%NIJT,D%NKT)  :: ZA, ZFLXZ, ZWKLES
-REAL, DIMENSION(D%NIJT)  :: ZCSV !constant (possibly perturbed) for the scalar flux
+REAL, DIMENSION(D%NIJT,D%NKT)  :: ZCSV !constant (possibly perturbed) for the scalar flux
 !
 !
 INTEGER             :: JSV          ! loop counters
@@ -147,13 +147,9 @@ CALL SECOND_MNH(ZTIME1)
 !
 IF(OBLOWSNOW) THEN
 ! See Vionnet (PhD, 2012) for a complete discussion around the value of the Schmidt number for blowing snow variables
-  DO JIJ=IIJB, IIJE
-     ZCSV(JIJ)= PTURB_SPP(JIJ,NCHF)/PRSNOW
-  ENDDO
+  ZCSV(:,:) = PTURB_SPP(:,:,NCHF)/PRSNOW
 ELSE
-  DO JIJ=IIJB, IIJE
-     ZCSV(JIJ)= PTURB_SPP(JIJ,NCHF)
-  ENDDO
+  ZCSV(:,:) = PTURB_SPP(:,:,NCHF)
 ENDIF
 !
 DO JSV=1,KSV
@@ -177,7 +173,7 @@ CALL MZF_PHY(D, ZFLXZ, ZMZF2D_WORK1)
 
 DO JK=1, IKT
   DO JIJ=IIJB, IIJE
-    ZFLXZ(JIJ, JK) = ZCSV(JIJ)  / ZCSVD * PLM(JIJ, JK) * PLEPS(JIJ, JK) * ZMZF2D_WORK1(JIJ, JK)    
+    ZFLXZ(JIJ, JK) = ZCSV(JIJ,JK)  / ZCSVD * PLM(JIJ, JK) * PLEPS(JIJ, JK) * ZMZF2D_WORK1(JIJ, JK)    
   END DO
 END DO
 
@@ -206,7 +202,7 @@ CALL GZ_M_W_PHY(D, PSVM(:,:,JSV),PDZZ, ZGZ_M_W2D_WORK2)
 
 DO JK=1, IKT
   DO JIJ=IIJB, IIJE
-    ZFLXZ(JIJ, JK)= ( PTURB_SPP(JIJ,NCSHF) * PPHI3(JIJ, JK) + ZCSV(JIJ) * PPSI_SV(JIJ, JK, JSV) )              &
+    ZFLXZ(JIJ, JK)= ( PTURB_SPP(JIJ,JK,NCSHF) * PPHI3(JIJ, JK) + ZCSV(JIJ,JK) * PPSI_SV(JIJ, JK, JSV) )              &
                       *  ZGZ_M_W2D_WORK1(JIJ, JK)                          &
                       *  ZGZ_M_W2D_WORK2(JIJ, JK)    
   END DO
@@ -234,7 +230,7 @@ CALL GZ_M_W_PHY(D, PSVM(:,:,JSV),PDZZ, ZGZ_M_W2D_WORK2)
 
 DO JK=1, IKT
   DO JIJ=IIJB, IIJE
-    ZFLXZ(JIJ, JK)= ( ZCSV(JIJ) * PPSI3(JIJ, JK) + ZCSV(JIJ) * PPSI_SV(JIJ, JK, JSV) )             &
+    ZFLXZ(JIJ, JK)= ( ZCSV(JIJ,JK) * PPSI3(JIJ, JK) + ZCSV(JIJ,JK) * PPSI_SV(JIJ, JK, JSV) )             &
                         *  ZGZ_M_W2D_WORK1(JIJ, JK)                 &
                         *  ZGZ_M_W2D_WORK2(JIJ, JK)      
   END DO

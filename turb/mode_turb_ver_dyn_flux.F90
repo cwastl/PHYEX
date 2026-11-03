@@ -320,7 +320,7 @@ REAL, DIMENSION(D%NIJT,D%NKT), INTENT(INOUT)   ::  PRUS, PRVS, PRWS
 !
 REAL, DIMENSION(D%NIJT,D%NKT), INTENT(OUT)  ::  PDP          ! Dynamic TKE production term
 REAL, DIMENSION(D%NIJT,D%NKT), INTENT(IN)   ::  PTP          ! Thermal TKE production term
-REAL, DIMENSION(D%NIJT,NTURB_S), INTENT(IN)       ::  PTURB_SPP    ! Thermal TKE production term
+REAL, DIMENSION(D%NIJT,D%NKT,NTURB_S), INTENT(IN)       ::  PTURB_SPP    ! Thermal TKE production term
 REAL, DIMENSION(MERGE(D%NIJT,0,OCOUPLES)), INTENT(IN),OPTIONAL   ::  PSSUFL_C  ! Time evol Flux of U at sea surface (LOCEAN)
 REAL, DIMENSION(MERGE(D%NIJT,0,OCOUPLES)), INTENT(IN),OPTIONAL   ::  PSSVFL_C  !
 REAL, DIMENSION(MERGE(D%NIJT,0,OCOUPLES)), INTENT(IN),OPTIONAL   ::  PSSUFL   
@@ -353,9 +353,10 @@ INTEGER             :: IKT          ! array size in k direction
 INTEGER             :: IKTB,IKTE    ! start, end of k loops in physical domain
 INTEGER             :: JSV,JIJ,JK   ! scalar loop counter
 INTEGER             :: IKL
+REAL, DIMENSION(D%NIJT,D%NKT) :: ZCMFS ! constant (possibly perturbed)
 REAL, DIMENSION(D%NIJT)   :: ZCOEFFLXU, &
                              ZCOEFFLXV, ZUSLOPEM, ZVSLOPEM, &
-                             ZFLUXSFCU,ZFLUXSFCV, ZCMFS
+                             ZFLUXSFCU,ZFLUXSFCV
                                     ! coefficients for the surface flux
                                     ! evaluation and copy of PUSLOPEM and
                                     ! PVSLOPEM in local 3D arrays
@@ -430,9 +431,9 @@ PDP(:,:)=XUNDEF
 ZSOURCE(:,:) = 0.
 ZFLXZ(:,:) = 0.
 IF (TURBN%LHARAT) THEN
-  ZCMFS(:)=1.
+  ZCMFS(:,:)=1.
 ELSE
-  ZCMFS(:) = PTURB_SPP(:,NCMFS)
+  ZCMFS(:,:) = PTURB_SPP(:,:,NCMFS)
 ENDIF
 !
 DO JIJ=IIJB, IIJE
@@ -487,7 +488,7 @@ CALL MXM_PHY(D, PDZZ, ZMXM2D_WORK3)
 
 DO JK=1, IKT
   DO JIJ=IIJB, IIJE
-    ZA(JIJ, JK)    = -PTSTEP * ZCMFS(JIJ) * ZMXM2D_WORK1(JIJ, JK) * &
+    ZA(JIJ, JK)    = -PTSTEP * ZCMFS(JIJ,JK) * ZMXM2D_WORK1(JIJ, JK) * &
                    ZMXM2D_WORK2(JIJ, JK) / ZMXM2D_WORK3(JIJ, JK)**2
   END DO
 END DO
@@ -649,7 +650,7 @@ CALL MXM_PHY(D, PDZZ, ZMXM2D_WORK2)
 
 DO JK=1, IKT
   DO JIJ=IIJB, IIJE
-    ZFLXZ(JIJ, JK)     = -ZCMFS(JIJ) * ZMXM2D_WORK1(JIJ, JK) * &
+    ZFLXZ(JIJ, JK)     = -ZCMFS(JIJ,JK) * ZMXM2D_WORK1(JIJ, JK) * &
                       ZDZM2D_WORK1(JIJ, JK) / ZMXM2D_WORK2(JIJ, JK)
   END DO
 END DO
@@ -843,7 +844,7 @@ CALL LES_MEAN_SUBGRID_PHY(D, TLES, ZWKLES, TLES%X_LES_RES_ddxa_U_SBG_UaU )
 
   DO JK=1, IKT
     DO JIJ=IIJB, IIJE
-      ZWKLES(JIJ, JK)    = ZCMFS(JIJ) * ZKEFF(JIJ, JK) 
+      ZWKLES(JIJ, JK)    = ZCMFS(JIJ,JK) * ZKEFF(JIJ, JK) 
     END DO
   END DO
   CALL LES_MEAN_SUBGRID_PHY(D, TLES, ZWKLES, TLES%X_LES_SUBGRID_Km )
@@ -1166,7 +1167,7 @@ CALL MYM_PHY(D, PDZZ, ZMYM2D_WORK3)
 
 DO JK=1, IKT
   DO JIJ=IIJB, IIJE
-    ZA(JIJ, JK) = -PTSTEP * ZCMFS(JIJ) * ZMYM2D_WORK1(JIJ, JK) * ZMYM2D_WORK2(JIJ, JK) / ZMYM2D_WORK3(JIJ, JK)**2
+    ZA(JIJ, JK) = -PTSTEP * ZCMFS(JIJ,JK) * ZMYM2D_WORK1(JIJ, JK) * ZMYM2D_WORK2(JIJ, JK) / ZMYM2D_WORK3(JIJ, JK)**2
   END DO
 END DO
 
@@ -1330,7 +1331,7 @@ CALL MYM_PHY(D, PDZZ, ZMYM2D_WORK2)
 
 DO JK=1, IKT
   DO JIJ=IIJB, IIJE
-    ZFLXZ(JIJ, JK)   = -ZCMFS(JIJ) * ZMYM2D_WORK1(JIJ, JK) * &
+    ZFLXZ(JIJ, JK)   = -ZCMFS(JIJ,JK) * ZMYM2D_WORK1(JIJ, JK) * &
                   ZDZM2D_WORK1(JIJ, JK) / ZMYM2D_WORK2(JIJ, JK)
   END DO
 END DO
@@ -1826,7 +1827,7 @@ IF ( TURBN%LTURB_FLX .AND. TPFILE%LOPENED .AND. TURBN%CTURBDIM == '1DIM') THEN
 DO JK=1, IKT
   DO JIJ=IIJB, IIJE
     ZFLXZ(JIJ, JK)= (2./3.) * PTKEM(JIJ, JK)                     &
-         -ZCMFS(JIJ)*PLM(JIJ, JK)*SQRT(PTKEM(JIJ, JK))*ZGZ_W_M2D_WORK1(JIJ, JK)  
+         -ZCMFS(JIJ,JK)*PLM(JIJ, JK)*SQRT(PTKEM(JIJ, JK))*ZGZ_W_M2D_WORK1(JIJ, JK)  
   END DO
 END DO
 
